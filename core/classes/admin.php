@@ -7,13 +7,13 @@ class Admin{
 	    $this->db = $database;
 	}
 
-	public function insert_admin($id, $email, $password){
+	public function insert_admin($admin_id, $email, $password){
 
 		global $db;
 
-		$query 	= $this->db->prepare("INSERT INTO `admin` (`id`, `email`, `password`) VALUES (?, ?, ?) ");
+		$query 	= $this->db->prepare("INSERT INTO `admin` (`admin_id`, `email`, `password`) VALUES (?, ?, ?) ");
 
-		$query->bindValue(1, $id);
+		$query->bindValue(1, $admin_id);
 		$query->bindValue(2, $email);
 		$query->bindValue(3, $password);	
 
@@ -26,16 +26,16 @@ class Admin{
 		}	
 	}
 
-	public function update_admin($id, $email, $password){
+	public function update_admin($admin_id, $email, $password){
 
 		$query = $this->db->prepare("UPDATE `admin` SET
 								`email`			= ?,
 								`password`			= ?
 							
-								WHERE `id` 		= ? 
+								WHERE `admin_id` 		= ? 
 								");
 
-		$query->bindValue(1, $id);
+		$query->bindValue(1, $admin_id);
 		$query->bindValue(2, $email);
 		$query->bindValue(3, $password);
 
@@ -46,10 +46,10 @@ class Admin{
 		}	
 	}
 
-	public function admin_data($id) {
+	public function admin_data($admin_id) {
 
-		$query = $this->db->prepare("SELECT * FROM `admin` WHERE `id`= ?");
-		$query->bindValue(1, $id);
+		$query = $this->db->prepare("SELECT * FROM `admin` WHERE `admin_id`= ?");
+		$query->bindValue(1, $admin_id);
 
 		try{
 
@@ -80,7 +80,7 @@ class Admin{
 
 	public function admin_exists($email) {
 	
-		$query = $this->db->prepare("SELECT COUNT(`id`) FROM `admin` WHERE `email`= ?");
+		$query = $this->db->prepare("SELECT COUNT(`admin_id`) FROM `admin` WHERE `email`= ?");
 		$query->bindValue(1, $email);
 	
 		try{
@@ -100,9 +100,9 @@ class Admin{
 
 	}
 	 
-	public function email_exists($email) {
-
-		$query = $this->db->prepare("SELECT COUNT(`id`) FROM `admin` WHERE `email`= ?");
+	public function email_exists($email) 
+	{
+		$query = $this->db->prepare("SELECT COUNT(`admin_id`) FROM `admin` WHERE `email`= ?");
 		$query->bindValue(1, $email);
 	
 		try{
@@ -121,18 +121,41 @@ class Admin{
 		}
 
 	}
+	
+	public function username_exists($username) 
+	{
+		$query = $this->db->prepare("SELECT COUNT(`admin_id`) FROM `admin` WHERE `username`= ?");
+		$query->bindValue(1, $username);
+	
+		try{
 
-	public function register($password, $email){
+			$query->execute();
+			$rows = $query->fetchColumn();
+
+			if($rows == 1){
+				return true;
+			}else{
+				return false;
+			}
+
+		} catch (PDOException $e){
+			die($e->getMessage());
+		}
+
+	}
+
+	public function register($username, $email, $password)
+	{
 
 		global $bcrypt; // making the $bcrypt variable global so we can use here
 
 		$password   = $bcrypt->genHash($password);
 
-		$query 	= $this->db->prepare("INSERT INTO `admin` (`password`, `email`) VALUES (?, ?) ");
-
-		$query->bindValue(1, $password);
+		$query 	= $this->db->prepare("INSERT INTO `admin` (`username`, `email`, `password`) VALUES (?, ?, ?) ");
+		$query->bindValue(1, $username);
 		$query->bindValue(2, $email);
-
+		$query->bindValue(3, $password);
+		
 		try{
 			$query->execute();
 
@@ -146,7 +169,7 @@ class Admin{
 
 		global $bcrypt;  // Again make get the bcrypt variable, which is defined in init.php, which is included in login.php where this function is called
 
-		$query = $this->db->prepare("SELECT `password`, `id` FROM `admin` WHERE `email` = ?");
+		$query = $this->db->prepare("SELECT `password`, `admin_id` FROM `admin` WHERE `email` = ?");
 		$query->bindValue(1, $email);
 
 		try{
@@ -154,10 +177,10 @@ class Admin{
 			$query->execute();
 			$data 				= $query->fetch();
 			$stored_password 	= $data['password']; // stored hashed password
-			$id   				= $data['id']; // id of the user to be returned if the password is verified, below.
+			$admin_id   				= $data['admin_id']; // id of the user to be returned if the password is verified, below.
 			
 			if($bcrypt->verify($password, $stored_password) === true){ // using the verify method to compare the password with the stored hashed password.
-				return $id;	// returning the user's id.
+				return $admin_id;	// returning the user's id.
 			}else{
 				return false;	
 			}

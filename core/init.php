@@ -18,8 +18,9 @@ $bcrypt 	= new Bcrypt(12);
 
 $errors = array();
 
-if ($general->logged_in() === true)  {
-	$admin_id 		= $_SESSION['admin_id'];
+if ($general->logged_in() === true)  
+{
+	$admin_id 		= $_SESSION['id'];
 	$user 		= $admin->admin_data($admin_id);
 }
 
