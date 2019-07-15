@@ -10,9 +10,9 @@ require 'classes/suburb.php';
 // error_reporting(0);
 
 $admin 		= new Admin($db);
-$payment 	= new Province($db);
-$society 	= new City($db);
-$member		= new Suburb($db);
+$province	= new Province($db);
+$city 		= new City($db);
+$suburb		= new Suburb($db);
 $general 	= new General();
 $bcrypt 	= new Bcrypt(12);
 

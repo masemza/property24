@@ -57,7 +57,7 @@ if (empty($_POST) === false) {
 		?>                    
                     <p><a href="#">Forgot Password?</a></p>
                     
-                    <a href="register.php" class="text-center">Not yea an Admin?</a>
+                    <a href="register.php" class="text-center">Not yet an Admin?</a>
                 </div>
             </form>
 

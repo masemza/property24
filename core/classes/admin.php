@@ -7,37 +7,39 @@ class Admin{
 	    $this->db = $database;
 	}
 
-	public function insert_admin($admin_id, $email, $password){
-
-		global $db;
-
-		$query 	= $this->db->prepare("INSERT INTO `admin` (`admin_id`, `email`, `password`) VALUES (?, ?, ?) ");
-
-		$query->bindValue(1, $admin_id);
+	public function insert_admin($username, $email, $password)
+	{	
+		global $bcrypt; // making the $bcrypt variable global so we can use here
+		$password   = $bcrypt->genHash($password);
+		
+		$query 	= $this->db->prepare("INSERT INTO `admin` (`username`, `email`, `password`) VALUES (?, ?, ?) ");
+		$query->bindValue(1, $username);
 		$query->bindValue(2, $email);
 		$query->bindValue(3, $password);	
 
-		try{
+		try
+		{
 			$query->execute();
 
 			//mail($email, 'Welcome to Tello Business', "Hello " . $username. ",\r\nThank you for registering with us. \r\n\r\n-- Tello Business Team");
-		}catch(PDOException $e){
+		}catch(PDOException $e)
+		{
 			die($e->getMessage());
 		}	
 	}
 
-	public function update_admin($admin_id, $email, $password){
-
+	public function updateAdmin($username, $email, $admin_id)
+	{
 		$query = $this->db->prepare("UPDATE `admin` SET
-								`email`			= ?,
-								`password`			= ?
-							
-								WHERE `admin_id` 		= ? 
+								`username`			= ?,
+								`email`				= ?
+								
+								WHERE `admin_id` 	= ? 
 								");
 
-		$query->bindValue(1, $admin_id);
+		$query->bindValue(1, $username);
 		$query->bindValue(2, $email);
-		$query->bindValue(3, $password);
+		$query->bindValue(3, $admin_id);
 
 		try{
 			$query->execute();
@@ -46,8 +48,8 @@ class Admin{
 		}	
 	}
 
-	public function admin_data($admin_id) {
-
+	public function admin_data($admin_id) 
+	{
 		$query = $this->db->prepare("SELECT * FROM `admin` WHERE `admin_id`= ?");
 		$query->bindValue(1, $admin_id);
 
@@ -61,7 +63,40 @@ class Admin{
 
 			die($e->getMessage());
 		}
+	}
+	
+	public function adminInformation() 
+	{
+		$query = $this->db->prepare("SELECT * FROM `admin`");
 
+		try{
+
+			$query->execute();
+
+			return $query->fetchAll();
+
+		} catch(PDOException $e){
+
+			die($e->getMessage());
+		}
+	}
+
+	public function search_admin($search) 
+	{
+		$query = $this->db->prepare("SELECT * FROM `admin` where `email` = ? OR `username` = ?");
+		$query->bindValue(1, $search);
+		$query->bindValue(2, $search);
+
+		try{
+
+			$query->execute();
+
+			return $query->fetchAll();
+
+		} catch(PDOException $e){
+
+			die($e->getMessage());
+		}
 	}
 	  	  	 
 	public function get_admin() {
@@ -124,7 +159,7 @@ class Admin{
 	
 	public function username_exists($username) 
 	{
-		$query = $this->db->prepare("SELECT COUNT(`admin_id`) FROM `admin` WHERE `username`= ?");
+		$query = $this->db->prepare("SELECT COUNT(`admin_id`) FROM `admin` WHERE `username`= ? ");
 		$query->bindValue(1, $username);
 	
 		try{
@@ -144,9 +179,31 @@ class Admin{
 
 	}
 
+	public function admin1_exists($search) 
+	{
+		$query = $this->db->prepare("SELECT COUNT(`admin_id`) FROM `admin` WHERE `username`= ? OR `email` = ?");
+		$query->bindValue(1, $search);
+		$query->bindValue(2, $search);
+
+		try{
+
+			$query->execute();
+			$rows = $query->fetchColumn();
+
+			if($rows == 1){
+				return true;
+			}else{
+				return false;
+			}
+
+		} catch (PDOException $e){
+			die($e->getMessage());
+		}
+
+	}
+
 	public function register($username, $email, $password)
 	{
-
 		global $bcrypt; // making the $bcrypt variable global so we can use here
 
 		$password   = $bcrypt->genHash($password);
@@ -189,6 +246,21 @@ class Admin{
 			die($e->getMessage());
 		}
 	
+	}
+	
+	public function deleteAdmin($admin_id) {
+		$query = $this->db->prepare("DELETE FROM `admin` WHERE `admin_id` = ?");
+		$query->bindValue(1, $admin_id);
+		
+		try{
+
+			$query->execute();
+			
+		} catch(PDOException $e){
+
+			die($e->getMessage());
+		}
+		
 	}
 
 

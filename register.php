@@ -74,7 +74,7 @@ if (isset($_POST['submit'])) {
     <body class="bg-black">
 
         <div class="form-box" id="login-box">
-            <div class="header">Create Your Page</div>
+            <div class="header">Register admin</div>
             <form action="" method="post">
                 <div class="body bg-white">
 					<div class="form-group">
